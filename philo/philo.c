@@ -6,7 +6,7 @@
 /*   By: freddy </var/mail/freddy>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 14:45:13 by freddy            #+#    #+#             */
-/*   Updated: 2025/02/04 23:22:24 by freddy           ###   ########.fr       */
+/*   Updated: 2025/02/05 00:20:28 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#define MAX_PHILOSOPHERS 1024
 
 typedef size_t	t_timestamp;
 typedef struct s_philo
@@ -94,14 +95,22 @@ bool	check_args(int argc, char **argv)
 			return (false);
 		current_arg++;
 	}
+	if (ft_atoi(argv[1]) > MAX_PHILOSOPHERS || ft_atoi(argv[1]) <= 0
+		|| ft_atoi(argv[2]) <= 0 || ft_atoi(argv[3]) || ft_atoi(argv[4]) <= 0)
+		return (false);
+	if (argv[5])
+		if (ft_atoi(argv[5]) < 0)
+			return (false);
 	return (true);
 }
 
 int	main(int argc, char **argv)
 {
-	if (check_args(argc, argv))
-		printf("Tout est bon chef\n");
-	else
-		printf("C'est la merde chef\n");
+	t_philo	philos[MAX_PHILOSOPHERS];
+	t_params	params;
+	pthread_mutex_t	forks[MAX_PHILOSOPHERS];
+
+	if (!check_args(argc, argv))
+		printf("Wrong usage: ./philo.out <philosophers> <time to die> <time to eat> <time to sleep> [min number of meals for philosphers]\n");
 	return (0);
 }
