@@ -6,7 +6,7 @@
 /*   By: freddy </var/mail/freddy>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 14:45:13 by freddy            #+#    #+#             */
-/*   Updated: 2025/02/03 18:17:19 by freddy           ###   ########.fr       */
+/*   Updated: 2025/02/04 23:22:24 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,8 +89,11 @@ bool	check_args(int argc, char **argv)
 	if (argc < 5 || argc > 6)
 		return (false);
 	while (current_arg < argc)
+	{
 		if (!is_arg_digit(argv[current_arg]))
 			return (false);
+		current_arg++;
+	}
 	return (true);
 }
 
