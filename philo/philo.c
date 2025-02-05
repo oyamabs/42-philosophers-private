@@ -6,10 +6,11 @@
 /*   By: freddy </var/mail/freddy>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 14:45:13 by freddy            #+#    #+#             */
-/*   Updated: 2025/02/05 01:54:24 by freddy           ###   ########.fr       */
+/*   Updated: 2025/02/05 13:20:43 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <bits/types/struct_timeval.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -85,6 +86,28 @@ bool	is_arg_digit(char *arg)
 	return (true);
 }
 
+t_timestamp	get_timestamp()
+{
+	timeval	tv;
+
+	get_timestamp();
+}
+
+void	armageddon(t_params *params, pthread_mutex_t *forks)
+{
+	int	i;
+
+	i = 0;
+	while (i < params->philos_number)
+	{
+		pthread_join(params->philos[i].tid, NULL);
+		pthread_mutex_destroy(&forks[i]);
+	}
+	pthread_mutex_destroy(&params->death_check);
+	pthread_mutex_destroy(&params->write_check);
+	pthread_mutex_destroy(&params->meal_check);
+}
+
 void	*philo_routine(void *philo)
 {
 	// TODO: Do something
@@ -105,9 +128,9 @@ bool	check_args(int argc, char **argv)
 		current_arg++;
 	}
 	if (ft_atoi(argv[1]) > MAX_PHILOSOPHERS || ft_atoi(argv[1]) <= 0
-		|| ft_atoi(argv[2]) <= 0 || ft_atoi(argv[3]) || ft_atoi(argv[4]) <= 0)
+		|| ft_atoi(argv[2]) <= 0 || ft_atoi(argv[3]) <= 0 || ft_atoi(argv[4]) <= 0)
 		return (false);
-	if (argv[5])
+	if (argc == 6)
 		if (ft_atoi(argv[5]) < 0)
 			return (false);
 	return (true);
@@ -180,7 +203,14 @@ void	create_threads(t_params *params, pthread_mutex_t *forks)
 	while (i < params->philos_number)
 	{
 		if (pthread_create(&params->philos[i].tid, NULL, &philo_routine, &params->philos[i]) != 0)
-			// TODO: Delete function
+			armageddon(params, forks);
+		i++;
+	}
+	i = 0;
+	while (i < params->philos_number)
+	{
+		if (pthread_join(params->philos[i].tid, NULL))
+			armageddon(params, forks);
 		i++;
 	}
 }
