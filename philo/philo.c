@@ -6,7 +6,7 @@
 /*   By: freddy </var/mail/freddy>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 14:45:13 by freddy            #+#    #+#             */
-/*   Updated: 2025/02/05 01:12:34 by freddy           ###   ########.fr       */
+/*   Updated: 2025/02/05 01:54:24 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,12 @@ bool	is_arg_digit(char *arg)
 		i++;
 	}
 	return (true);
+}
+
+void	*philo_routine(void *philo)
+{
+	// TODO: Do something
+	return philo;
 }
 
 bool	check_args(int argc, char **argv)
@@ -166,6 +172,19 @@ void	init_all(t_params *params, pthread_mutex_t *forks, t_philo *philos, int phi
 	create_philos(params, philos, forks, argv);
 }
 
+void	create_threads(t_params *params, pthread_mutex_t *forks)
+{
+	int	i;
+
+	i = 0;
+	while (i < params->philos_number)
+	{
+		if (pthread_create(&params->philos[i].tid, NULL, &philo_routine, &params->philos[i]) != 0)
+			// TODO: Delete function
+		i++;
+	}
+}
+
 int	main(int argc, char **argv)
 {
 	t_philo	philos[MAX_PHILOSOPHERS];
@@ -175,5 +194,6 @@ int	main(int argc, char **argv)
 	if (!check_args(argc, argv))
 		printf("Wrong usage: ./philo.out <philosophers> <time to die> <time to eat> <time to sleep> [min number of meals for philosphers]\n");
 	init_all(&params, forks, philos, ft_atoi(argv[1]), argv);
+	create_threads(&params, forks);
 	return (0);
 }
