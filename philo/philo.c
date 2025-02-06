@@ -6,7 +6,7 @@
 /*   By: freddy </var/mail/freddy>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 14:45:13 by freddy            #+#    #+#             */
-/*   Updated: 2025/02/05 13:20:43 by freddy           ###   ########.fr       */
+/*   Updated: 2025/02/07 00:44:58 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <pthread.h>
+#include <sys/time.h>
 #define MAX_PHILOSOPHERS 1024
 
 typedef size_t	t_timestamp;
@@ -88,9 +89,25 @@ bool	is_arg_digit(char *arg)
 
 t_timestamp	get_timestamp()
 {
-	timeval	tv;
+	struct timeval	tv;
+	int	returned;
 
-	get_timestamp();
+	returned = gettimeofday(&tv, NULL);
+	if (returned < 0)
+	{
+		printf("gettimeofday() shat itself, sucks!\n");
+	}
+	return (tv.tv_sec * 1000 * tv.tv_usec / 1000);
+}
+
+void	secure_message(t_philo *philo, const char *msg)
+{
+	t_timestamp	time;
+
+	pthread_mutex_lock(philo->write_check);
+	time = get_timestamp();
+	printf("[%ld] -> %d %s\n", time, philo->id, msg);
+	pthread_mutex_unlock(philo->write_check);
 }
 
 void	armageddon(t_params *params, pthread_mutex_t *forks)
