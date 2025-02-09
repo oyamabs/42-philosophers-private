@@ -6,7 +6,7 @@
 /*   By: freddy </var/mail/freddy>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 14:45:13 by freddy            #+#    #+#             */
-/*   Updated: 2025/02/09 16:56:24 by freddy           ###   ########.fr       */
+/*   Updated: 2025/02/09 18:28:23 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ typedef struct s_philo
 	pthread_t	tid;
 	int	meals_count;
 	int	min_meals;
+	int	philos_count;
 	bool	is_eating;
 	bool	*is_dead;
 	t_timestamp	sleep_time;
@@ -162,7 +163,9 @@ void	eat(t_philo *philo)
 	secure_sleep(philo->meal_time);
 	philo->is_eating = false;
 	pthread_mutex_unlock(philo->left_fork);
+	secure_message(philo, "has taken back a fork");
 	pthread_mutex_unlock(philo->right_fork);
+	secure_message(philo, "has taken back a fork");
 }
 
 void	philo_sleep(t_philo *philo)
@@ -182,7 +185,7 @@ void	*philo_routine(void *philo)
 
 	plato = (t_philo *)philo;
 	if (plato->id % 2)
-		secure_sleep(1);
+		secure_sleep(50);
 	while (!check_death(plato))
 	{
 		eat(plato);
@@ -252,6 +255,7 @@ void	create_philos(t_params *params, t_philo *philos, pthread_mutex_t *forks, ch
 		philos[i].meal_check = &params->meal_check;
 		philos[i].death_check = &params->death_check;
 		philos[i].is_dead = &params->dead;
+		philos[i].philos_count = params->philos_number;
 		philos[i].left_fork = &forks[i];
 		if (i == 0)
 			philos[i].right_fork = &forks[params->philos_number - 1];
@@ -273,10 +277,88 @@ void	init_all(t_params *params, pthread_mutex_t *forks, t_philo *philos, int phi
 	create_philos(params, philos, forks, argv);
 }
 
-void	create_threads(t_params *params, pthread_mutex_t *forks)
+bool	check_death_solo(t_philo *philo)
+{
+	bool	isdead;
+
+	pthread_mutex_lock(philo->death_check);
+	isdead = false;
+	if (get_timestamp() - philo->last_meal >= philo->death_time && philo->is_eating)
+		isdead = true;
+	pthread_mutex_unlock(philo->death_check);
+	return (isdead);
+}
+
+bool	check_if_dead(t_philo *philo)
 {
 	int	i;
 
+	i = 0;
+	while (i < philo[0].philos_count)
+	{
+		if (check_death_solo(&philo[i]))
+		{
+			secure_message(philo, "is dead");
+			pthread_mutex_lock(philo->death_check);
+			*philo->is_dead = true;
+			pthread_mutex_unlock(philo->death_check);
+			return (true);
+		}
+		i++;
+	}
+	return (false);
+}
+
+bool	check_if_all_ate(t_philo *philo)
+{
+	int	i;
+	int	finished;
+
+	i = 0;
+	finished = 0;
+	if (philo->min_meals == -1)
+		return (false);
+	while (i < philo->philos_count)
+	{
+		pthread_mutex_lock(philo->meal_check);
+		if (philo[i].meals_count >= philo[i].min_meals)
+			finished++;
+		pthread_mutex_unlock(philo->meal_check);
+		i++;
+	}
+	if (finished == philo->min_meals)
+	{
+		pthread_mutex_lock(philo->death_check);
+		*philo->is_dead = 1;
+		pthread_mutex_unlock(philo->death_check);
+		return (true);
+	}
+	return (false);
+}
+
+void	*monitoring(void *philo)
+{
+	t_philo	*descartes;
+
+	descartes = (t_philo *)philo;
+	while (true)
+	{
+		if (check_if_dead(descartes) || check_if_all_ate(descartes))
+			break ;
+	}
+	return (philo);
+}
+
+void	create_threads(t_params *params, pthread_mutex_t *forks)
+{
+	int	i;
+	pthread_t	observer;
+
+	if (pthread_create(&observer, NULL, &monitoring, params->philos) != 0)
+	{
+		armageddon(params, forks);
+		return ;
+	}
 	i = 0;
 	while (i < params->philos_number)
 	{
@@ -284,6 +366,8 @@ void	create_threads(t_params *params, pthread_mutex_t *forks)
 			armageddon(params, forks);
 		i++;
 	}
+	if (pthread_join(observer, NULL) != 0)
+		armageddon(params, forks);
 	i = 0;
 	while (i < params->philos_number)
 	{

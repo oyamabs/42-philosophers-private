@@ -1,6 +1,6 @@
 NAME=philo.out
 CC=cc
-CFLAGS=-Wall -Wextra -g -fsanitize=address
+CFLAGS=-Wall -Wextra -g
 SOURCEFILES=philo/philo.c
 OBJECTS=$(patsubst philo/%.c,objects/%.o,$(SOURCEFILES))
 OBJDIR=objects
