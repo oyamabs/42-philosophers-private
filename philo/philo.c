@@ -6,7 +6,7 @@
 /*   By: freddy </var/mail/freddy>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 14:45:13 by freddy            #+#    #+#             */
-/*   Updated: 2025/02/09 13:15:25 by freddy           ###   ########.fr       */
+/*   Updated: 2025/02/09 16:56:24 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,11 +135,60 @@ void	armageddon(t_params *params, pthread_mutex_t *forks)
 	pthread_mutex_destroy(&params->meal_check);
 }
 
+bool	check_death(t_philo *philo)
+{
+	bool	death;
+
+	death = false;
+	pthread_mutex_lock(philo->death_check);
+	if (*philo->is_dead)
+		death = true;
+	pthread_mutex_unlock(philo->death_check);
+	return (death);
+}
+
+void	eat(t_philo *philo)
+{
+	pthread_mutex_lock(philo->left_fork);
+	secure_message(philo, "Has taken a fork");
+	pthread_mutex_lock(philo->right_fork);
+	secure_message(philo, "Has taken a fork");
+	philo->is_eating = true;
+	secure_message(philo, "is miaming");
+	pthread_mutex_lock(philo->meal_check);
+	philo->last_meal = get_timestamp();
+	philo->meals_count++; 
+	pthread_mutex_unlock(philo->meal_check);
+	secure_sleep(philo->meal_time);
+	philo->is_eating = false;
+	pthread_mutex_unlock(philo->left_fork);
+	pthread_mutex_unlock(philo->right_fork);
+}
+
+void	philo_sleep(t_philo *philo)
+{
+	secure_message(philo, "is sleeping");
+	secure_sleep(philo->sleep_time);
+}
+
+void	think(t_philo *philo)
+{
+	secure_message(philo, "is thinking");
+}
+
 void	*philo_routine(void *philo)
 {
 	t_philo	*plato;
 
 	plato = (t_philo *)philo;
+	if (plato->id % 2)
+		secure_sleep(1);
+	while (!check_death(plato))
+	{
+		eat(plato);
+		philo_sleep(plato);
+		think(plato);
+	}
 	return (philo);
 }
 
@@ -256,7 +305,6 @@ int	main(int argc, char **argv)
 		return (1);
 	}
 	init_all(&params, forks, philos, ft_atoi(argv[1]), argv);
-	secure_message(&philos[1], "test");
 	create_threads(&params, forks);
 	return (0);
 }
