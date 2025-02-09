@@ -6,11 +6,12 @@
 /*   By: freddy </var/mail/freddy>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 14:45:13 by freddy            #+#    #+#             */
-/*   Updated: 2025/02/07 00:44:58 by freddy           ###   ########.fr       */
+/*   Updated: 2025/02/09 13:15:25 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <bits/types/struct_timeval.h>
+#include <time.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -110,6 +111,15 @@ void	secure_message(t_philo *philo, const char *msg)
 	pthread_mutex_unlock(philo->write_check);
 }
 
+void	secure_sleep(t_timestamp time)
+{
+	t_timestamp	start;
+
+	start = get_timestamp();
+	while ((get_timestamp() - start) < time)
+		usleep(50);
+}
+
 void	armageddon(t_params *params, pthread_mutex_t *forks)
 {
 	int	i;
@@ -127,8 +137,10 @@ void	armageddon(t_params *params, pthread_mutex_t *forks)
 
 void	*philo_routine(void *philo)
 {
-	// TODO: Do something
-	return philo;
+	t_philo	*plato;
+
+	plato = (t_philo *)philo;
+	return (philo);
 }
 
 bool	check_args(int argc, char **argv)
@@ -239,8 +251,12 @@ int	main(int argc, char **argv)
 	pthread_mutex_t	forks[MAX_PHILOSOPHERS];
 
 	if (!check_args(argc, argv))
+	{
 		printf("Wrong usage: ./philo.out <philosophers> <time to die> <time to eat> <time to sleep> [min number of meals for philosphers]\n");
+		return (1);
+	}
 	init_all(&params, forks, philos, ft_atoi(argv[1]), argv);
+	secure_message(&philos[1], "test");
 	create_threads(&params, forks);
 	return (0);
 }
