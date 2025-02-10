@@ -6,7 +6,7 @@
 /*   By: freddy </var/mail/freddy>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 14:45:13 by freddy            #+#    #+#             */
-/*   Updated: 2025/02/09 18:28:23 by freddy           ###   ########.fr       */
+/*   Updated: 2025/02/10 12:32:01 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,8 +107,8 @@ void	secure_message(t_philo *philo, const char *msg)
 	t_timestamp	time;
 
 	pthread_mutex_lock(philo->write_check);
-	time = get_timestamp();
-	printf("[%ld] -> %d %s\n", time, philo->id, msg);
+	time = get_timestamp() - philo->start;
+	printf("%ld %d %s\n", time, philo->id, msg);
 	pthread_mutex_unlock(philo->write_check);
 }
 
@@ -118,7 +118,7 @@ void	secure_sleep(t_timestamp time)
 
 	start = get_timestamp();
 	while ((get_timestamp() - start) < time)
-		usleep(50);
+		usleep(500);
 }
 
 void	armageddon(t_params *params, pthread_mutex_t *forks)
@@ -151,21 +151,19 @@ bool	check_death(t_philo *philo)
 void	eat(t_philo *philo)
 {
 	pthread_mutex_lock(philo->left_fork);
-	secure_message(philo, "Has taken a fork");
+	secure_message(philo, "has taken a fork");
 	pthread_mutex_lock(philo->right_fork);
-	secure_message(philo, "Has taken a fork");
-	philo->is_eating = true;
-	secure_message(philo, "is miaming");
+	secure_message(philo, "has taken a fork");
 	pthread_mutex_lock(philo->meal_check);
+	philo->is_eating = true;
+	secure_message(philo, "is eating");
 	philo->last_meal = get_timestamp();
 	philo->meals_count++; 
 	pthread_mutex_unlock(philo->meal_check);
 	secure_sleep(philo->meal_time);
 	philo->is_eating = false;
 	pthread_mutex_unlock(philo->left_fork);
-	secure_message(philo, "has taken back a fork");
 	pthread_mutex_unlock(philo->right_fork);
-	secure_message(philo, "has taken back a fork");
 }
 
 void	philo_sleep(t_philo *philo)
@@ -184,7 +182,7 @@ void	*philo_routine(void *philo)
 	t_philo	*plato;
 
 	plato = (t_philo *)philo;
-	if (plato->id % 2)
+	if (plato->id % 2 == 0)
 		secure_sleep(50);
 	while (!check_death(plato))
 	{
@@ -231,11 +229,11 @@ void	create_forks(pthread_mutex_t *forks_arr, int forks)
 
 void	init_timestamps_params(t_philo *philo, char **argv)
 {
-	philo->start = 0;
-	philo->last_meal = 0;
-	philo->meal_time = ft_atoi(argv[2]);
-	philo->sleep_time = ft_atoi(argv[3]);
-	philo->death_time = ft_atoi(argv[4]);
+	philo->start = get_timestamp();
+	philo->last_meal = get_timestamp();
+	philo->meal_time = ft_atoi(argv[3]);
+	philo->sleep_time = ft_atoi(argv[4]);
+	philo->death_time = ft_atoi(argv[2]);
 	if (argv[5])
 		philo->min_meals = ft_atoi(argv[5]);
 }
@@ -355,10 +353,7 @@ void	create_threads(t_params *params, pthread_mutex_t *forks)
 	pthread_t	observer;
 
 	if (pthread_create(&observer, NULL, &monitoring, params->philos) != 0)
-	{
 		armageddon(params, forks);
-		return ;
-	}
 	i = 0;
 	while (i < params->philos_number)
 	{
