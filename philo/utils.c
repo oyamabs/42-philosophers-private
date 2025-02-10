@@ -6,7 +6,7 @@
 /*   By: freddy </var/spool/mail/freddy>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/10 16:45:07 by freddy            #+#    #+#             */
-/*   Updated: 2025/02/10 16:45:47 by freddy           ###   ########.fr       */
+/*   Updated: 2025/02/10 17:09:20 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,10 +36,10 @@ int	ft_atoi(const char *s)
 	return (res * isnegative);
 }
 
-t_timestamp	get_timestamp()
+t_timestamp	get_timestamp(void)
 {
 	struct timeval	tv;
-	int	returned;
+	int				returned;
 
 	returned = gettimeofday(&tv, NULL);
 	if (returned < 0)
@@ -54,7 +54,7 @@ void	secure_message(t_philo *philo, const char *msg)
 	t_timestamp	time;
 
 	pthread_mutex_lock(philo->write_check);
-	time = get_timestamp(); // - philo->start;
+	time = get_timestamp();
 	printf("%ld %d %s\n", time, philo->id, msg);
 	pthread_mutex_unlock(philo->write_check);
 }
