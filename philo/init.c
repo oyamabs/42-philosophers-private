@@ -6,7 +6,7 @@
 /*   By: freddy </var/spool/mail/freddy>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/10 16:47:42 by freddy            #+#    #+#             */
-/*   Updated: 2025/02/10 16:48:47 by freddy           ###   ########.fr       */
+/*   Updated: 2025/02/10 16:59:40 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,10 +35,10 @@ void	init_timestamps_params(t_philo *philo, char **argv)
 		philo->min_meals = ft_atoi(argv[5]);
 	else
 		philo->min_meals = -1;
-
 }
 
-void	create_philos(t_params *params, t_philo *philos, pthread_mutex_t *forks, char **argv)
+void	create_philos(t_params *params, t_philo *philos,
+			pthread_mutex_t *forks, char **argv)
 {
 	int	i;
 
