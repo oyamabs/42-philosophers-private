@@ -6,7 +6,7 @@
 /*   By: freddy </var/spool/mail/freddy>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/10 16:46:16 by freddy            #+#    #+#             */
-/*   Updated: 2025/02/10 16:47:22 by freddy           ###   ########.fr       */
+/*   Updated: 2025/02/10 17:10:14 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void	eat(t_philo *philo)
 	philo->is_eating = true;
 	secure_message(philo, "is eating");
 	philo->last_meal = get_timestamp();
-	philo->meals_count++; 
+	philo->meals_count++;
 	secure_sleep(philo->meal_time);
 	pthread_mutex_unlock(philo->meal_check);
 	philo->is_eating = false;
