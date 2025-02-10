@@ -6,7 +6,7 @@
 /*   By: freddy </var/mail/freddy>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 14:45:13 by freddy            #+#    #+#             */
-/*   Updated: 2025/02/10 12:32:01 by freddy           ###   ########.fr       */
+/*   Updated: 2025/02/10 13:42:41 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ t_timestamp	get_timestamp()
 	{
 		printf("gettimeofday() shat itself, sucks!\n");
 	}
-	return (tv.tv_sec * 1000 * tv.tv_usec / 1000);
+	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 
 void	secure_message(t_philo *philo, const char *msg)
@@ -130,6 +130,7 @@ void	armageddon(t_params *params, pthread_mutex_t *forks)
 	{
 		pthread_join(params->philos[i].tid, NULL);
 		pthread_mutex_destroy(&forks[i]);
+		i++;
 	}
 	pthread_mutex_destroy(&params->death_check);
 	pthread_mutex_destroy(&params->write_check);
@@ -154,9 +155,9 @@ void	eat(t_philo *philo)
 	secure_message(philo, "has taken a fork");
 	pthread_mutex_lock(philo->right_fork);
 	secure_message(philo, "has taken a fork");
-	pthread_mutex_lock(philo->meal_check);
 	philo->is_eating = true;
 	secure_message(philo, "is eating");
+	pthread_mutex_lock(philo->meal_check);
 	philo->last_meal = get_timestamp();
 	philo->meals_count++; 
 	pthread_mutex_unlock(philo->meal_check);
@@ -183,7 +184,7 @@ void	*philo_routine(void *philo)
 
 	plato = (t_philo *)philo;
 	if (plato->id % 2 == 0)
-		secure_sleep(50);
+		secure_sleep(1);
 	while (!check_death(plato))
 	{
 		eat(plato);
