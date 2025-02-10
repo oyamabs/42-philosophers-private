@@ -6,7 +6,7 @@
 /*   By: freddy </var/spool/mail/freddy>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/10 16:41:27 by freddy            #+#    #+#             */
-/*   Updated: 2025/02/10 17:04:12 by freddy           ###   ########.fr       */
+/*   Updated: 2025/02/10 17:11:14 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ void		init_timestamps_params(t_philo *philo, char **argv);
 void		create_philos(t_params *params, t_philo *philos,
 				pthread_mutex_t *forks, char **argv);
 void		init_all(t_params *params, pthread_mutex_t *forks,
-				t_philo *philos, int philosnum, char **argv);
+				t_philo *philos, char **argv);
 bool		check_death_solo(t_philo *philo);
 bool		check_if_dead(t_philo *philo);
 bool		check_if_all_ate(t_philo *philo);
