@@ -6,7 +6,7 @@
 /*   By: freddy </var/mail/freddy>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 14:45:13 by freddy            #+#    #+#             */
-/*   Updated: 2025/02/10 15:51:28 by freddy           ###   ########.fr       */
+/*   Updated: 2025/02/10 16:39:21 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ void	secure_message(t_philo *philo, const char *msg)
 	t_timestamp	time;
 
 	pthread_mutex_lock(philo->write_check);
-	time = get_timestamp() - philo->start;
+	time = get_timestamp(); // - philo->start;
 	printf("%ld %d %s\n", time, philo->id, msg);
 	pthread_mutex_unlock(philo->write_check);
 }
@@ -151,13 +151,23 @@ bool	check_death(t_philo *philo)
 
 void	eat(t_philo *philo)
 {
-	pthread_mutex_lock(philo->left_fork);
-	secure_message(philo, "has taken a fork");
-	pthread_mutex_lock(philo->right_fork);
-	secure_message(philo, "has taken a fork");
+	if (philo->id % 2 == 0)
+	{
+		pthread_mutex_lock(philo->left_fork);
+		secure_message(philo, "has taken a fork");
+		pthread_mutex_lock(philo->right_fork);
+		secure_message(philo, "has taken a fork");
+	}
+	else
+	{
+		pthread_mutex_lock(philo->right_fork);
+		secure_message(philo, "has taken a fork");
+		pthread_mutex_lock(philo->left_fork);
+		secure_message(philo, "has taken a fork");
+	}
+	pthread_mutex_lock(philo->meal_check);
 	philo->is_eating = true;
 	secure_message(philo, "is eating");
-	pthread_mutex_lock(philo->meal_check);
 	philo->last_meal = get_timestamp();
 	philo->meals_count++; 
 	secure_sleep(philo->meal_time);
@@ -286,7 +296,7 @@ bool	check_death_solo(t_philo *philo)
 	pthread_mutex_lock(philo->death_check);
 	pthread_mutex_lock(philo->meal_check);
 	isdead = false;
-	if (!philo->is_eating && get_timestamp() - philo->last_meal >= philo->death_time)
+	if (get_timestamp() - philo->last_meal >= philo->death_time && !philo->is_eating)
 		isdead = true;
 	pthread_mutex_unlock(philo->meal_check);
 	pthread_mutex_unlock(philo->death_check);
@@ -302,7 +312,7 @@ bool	check_if_dead(t_philo *philo)
 	{
 		if (check_death_solo(&philo[i]))
 		{
-			secure_message(philo, "is dead");
+			secure_message(philo, "died");
 			pthread_mutex_lock(philo->death_check);
 			*philo->is_dead = true;
 			pthread_mutex_unlock(philo->death_check);
