@@ -6,7 +6,7 @@
 /*   By: freddy </var/mail/freddy>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 14:45:13 by freddy            #+#    #+#             */
-/*   Updated: 2025/02/10 13:42:41 by freddy           ###   ########.fr       */
+/*   Updated: 2025/02/10 14:19:08 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,8 +160,8 @@ void	eat(t_philo *philo)
 	pthread_mutex_lock(philo->meal_check);
 	philo->last_meal = get_timestamp();
 	philo->meals_count++; 
-	pthread_mutex_unlock(philo->meal_check);
 	secure_sleep(philo->meal_time);
+	pthread_mutex_unlock(philo->meal_check);
 	philo->is_eating = false;
 	pthread_mutex_unlock(philo->left_fork);
 	pthread_mutex_unlock(philo->right_fork);
@@ -237,6 +237,9 @@ void	init_timestamps_params(t_philo *philo, char **argv)
 	philo->death_time = ft_atoi(argv[2]);
 	if (argv[5])
 		philo->min_meals = ft_atoi(argv[5]);
+	else
+		philo->min_meals = -1;
+
 }
 
 void	create_philos(t_params *params, t_philo *philos, pthread_mutex_t *forks, char **argv)
@@ -281,9 +284,11 @@ bool	check_death_solo(t_philo *philo)
 	bool	isdead;
 
 	pthread_mutex_lock(philo->death_check);
+	pthread_mutex_lock(philo->meal_check);
 	isdead = false;
 	if (get_timestamp() - philo->last_meal >= philo->death_time && philo->is_eating)
 		isdead = true;
+	pthread_mutex_unlock(philo->meal_check);
 	pthread_mutex_unlock(philo->death_check);
 	return (isdead);
 }
