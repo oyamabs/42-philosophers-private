@@ -6,7 +6,7 @@
 /*   By: freddy </var/spool/mail/freddy>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/10 16:48:53 by freddy            #+#    #+#             */
-/*   Updated: 2025/02/10 16:49:35 by freddy           ###   ########.fr       */
+/*   Updated: 2025/02/10 16:55:53 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,8 @@ bool	check_death_solo(t_philo *philo)
 	pthread_mutex_lock(philo->death_check);
 	pthread_mutex_lock(philo->meal_check);
 	isdead = false;
-	if (get_timestamp() - philo->last_meal >= philo->death_time && !philo->is_eating)
+	if (get_timestamp() - philo->last_meal >= philo->death_time
+		&& !philo->is_eating)
 		isdead = true;
 	pthread_mutex_unlock(philo->meal_check);
 	pthread_mutex_unlock(philo->death_check);
