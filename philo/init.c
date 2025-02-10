@@ -6,7 +6,7 @@
 /*   By: freddy </var/spool/mail/freddy>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/10 16:47:42 by freddy            #+#    #+#             */
-/*   Updated: 2025/02/10 16:59:40 by freddy           ###   ########.fr       */
+/*   Updated: 2025/02/10 17:08:07 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,8 @@ void	create_philos(t_params *params, t_philo *philos,
 	}
 }
 
-void	init_all(t_params *params, pthread_mutex_t *forks, t_philo *philos, int philosnum, char **argv)
+void	init_all(t_params *params, pthread_mutex_t *forks, t_philo *philos,
+			int philosnum, char **argv)
 {
 	params->dead = false;
 	params->philos = philos;
@@ -77,7 +78,7 @@ void	init_all(t_params *params, pthread_mutex_t *forks, t_philo *philos, int phi
 
 void	create_threads(t_params *params, pthread_mutex_t *forks)
 {
-	int	i;
+	int			i;
 	pthread_t	observer;
 
 	if (pthread_create(&observer, NULL, &monitoring, params->philos) != 0)
@@ -85,7 +86,8 @@ void	create_threads(t_params *params, pthread_mutex_t *forks)
 	i = 0;
 	while (i < params->philos_number)
 	{
-		if (pthread_create(&params->philos[i].tid, NULL, &philo_routine, &params->philos[i]) != 0)
+		if (pthread_create(&params->philos[i].tid, NULL,
+				&philo_routine, &params->philos[i]) != 0)
 			armageddon(params, forks);
 		i++;
 	}
