@@ -6,7 +6,7 @@
 /*   By: freddy </var/mail/freddy>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 14:45:13 by freddy            #+#    #+#             */
-/*   Updated: 2025/02/10 16:54:53 by freddy           ###   ########.fr       */
+/*   Updated: 2025/02/11 13:25:47 by freddy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ int	main(int argc, char **argv)
 			"[min number of meals for philosphers]\n");
 		return (1);
 	}
-	init_all(&params, forks, philos, ft_atoi(argv[1]), argv);
+	init_all(&params, forks, philos, argv);
 	create_threads(&params, forks);
 	return (0);
 }
